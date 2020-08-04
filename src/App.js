@@ -1,26 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect }  from 'react';
 import './App.css';
+import { Route, Switch, Redirect } from 'react-router-dom'
+import { useSelector,  useDispatch } from 'react-redux'
+import Home from './components/Home'
+import About from './components/About'
+import Logout from './components/Logout'
+import Auth from './components/Auth'
+import Header from './components/Header'
+import {autoLogin} from './context/authActions'
 
 function App() {
+
+  
+  const token = useSelector(state => state.auth.token)
+  const isAuthenticated = !!token
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(autoLogin())
+  }, [])
+
+  
+
+  let routes = (
+    <Switch>
+      <Route path="/auth" component={Auth} />
+      <Route path="/" exact component={Home} />
+      <Redirect to={'/'} />
+    </Switch>
+  )
+
+  if (isAuthenticated) {
+    routes = (
+      <Switch>
+        <Route path="/about" exact component={About} />
+        <Route path="/logout" component={Logout} />
+        <Route path="/" exact component={Home} />
+        <Redirect to={'/'} />
+      </Switch>
+    )
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <Header />
+      {routes}
+    </>
+  )
 }
 
 export default App;
